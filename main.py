@@ -6,11 +6,10 @@ import datetime as dt
 class Record:
     def __init__(self, amount, comment, date=''):
         self.amount = amount
-        # 1. Можно получить текущую дату проще: dt.date.today()
-        # 2. Получение текущей даты следует вынести в те методы, где она используется
+        # Можно получить текущую дату проще: dt.date.today()
         self.date = (
             dt.datetime.now().date() if
-            # лучше написать условие на одной строке: if not date - это улучшит читаемость (можно лучше)
+            # лучше написать условие на одной строке: if not date - это улучшит читаемость
             not
             # 1. Ипользование тернарного оператора - это хорошо
             # 2. При подобном методе переноса последнюю скобку лучше также перенести
@@ -30,11 +29,13 @@ class Calculator:
         today_stats = 0
         # переменные принято называть с маленькой буквы. Тем более что тут это не название класса,
         # а временная переменная, которая используется только в этом цикле
-        # весь цикл можно написать в одну строку, используя sum и list comprehension https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+        # всё выражение можно написать в одну строку, используя sum и list comprehension
+        # https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
         for Record in self.records:
-            # текущую дату можно получить проще (см. выше)
+            # 1. Текущую дату можно получить проще (см. выше)
+            # 2. Лучше вычислить дату заранее, чтобы улучшить читаемость кода
             if Record.date == dt.datetime.now().date():
-                # можно так: today_stats += record.amount
+                # можно так: today_stats += record.amount (если вычисление не через sum)
                 today_stats = today_stats + Record.amount
         return today_stats
 
@@ -44,7 +45,9 @@ class Calculator:
         today = dt.datetime.now().date()
         for record in self.records:
             if (
-                # можно упростить условие, используя in range(7) https://docs.python.org/3/library/stdtypes.html?highlight=range#range
+                # 1. Можно упростить условие, используя in range(7) https://docs.python.org/3/library/stdtypes.html?highlight=range#range
+                # 2. тогда не придется выражение (today - record.date) вычислять 2 раза.
+                # 3. Здесь также напрашивается sum и list comprehension.
                 (today - record.date).days < 7 and
                 (today - record.date).days >= 0
             ):
@@ -54,9 +57,11 @@ class Calculator:
 
 class CaloriesCalculator(Calculator):
     def get_calories_remained(self):  # Получает остаток калорий на сегодня
+        # Следует избегать однобуквенных обозначений переменных - лучше называть их в соответствии
+        # с их назначением
         x = self.limit - self.get_today_stats()
         if x > 0:
-            # Такие переносы давно уже не в моде :) Следует использовать скобки (ссылку, PEP8).
+            # Такие переносы давно уже не в моде :) Следует использовать скобки.
             # Если в строке не подставляются переменные, f-строку использовать не нужно
             return f'Сегодня можно съесть что-нибудь' \
                    f' ещё, но с общей калорийностью не более {x} кКал'
@@ -69,13 +74,14 @@ class CashCalculator(Calculator):
     EURO_RATE = float(70)  # Курс Евро.
 
     def get_today_cash_remained(self, currency,
-                                # 1. Если использовать именованные аргументы, то они должны быть с маленькой буквы
-                                # 2. Переносы лучше выдержать в едином стиле (например как на стр. 11)
+                                # 1. Если используются именованные аргументы, то они должны быть с маленькой буквы
+                                # 2. Но лучше не "хардкодить" название валют в методе, а вынести названия и курсы в словарь на уровне класса,
+                                # который затем перебирать в цикле. Вообще, нужно по возможности избегать "захардкоженных" значений и использовать
+                                # переменные.
+                                # 3. Переносы лучше выдержать в едином стиле (например как на стр. 11)
                                 USD_RATE=USD_RATE, EURO_RATE=EURO_RATE):
         currency_type = currency
         cash_remained = self.limit - self.get_today_stats()
-        # лучше не "хардкодить" название валют в методе, а вынести названия и курсы в словарь на уровне класса,
-        # который затем перебирать в цикле. Вообще, нужно по возможности избегать "захардкоженных" значений и использовать переменные
         if currency == 'usd':
             cash_remained /= USD_RATE
             currency_type = 'USD'
@@ -83,7 +89,8 @@ class CashCalculator(Calculator):
             cash_remained /= EURO_RATE
             currency_type = 'Euro'
         # а если в метод будет передано значение не "usd", "eur" или "rub"? Нужно сделать проверку в самом начале,
-        # поддерживает ли метод переданную в него валюту, если нет - return
+        # поддерживается ли переданная валюта, если нет - return
+        # (подход "Guard Block" https://medium.com/lemon-code/guard-clauses-3bc0cd96a2d3)
         elif currency_type == 'rub':
             cash_remained == 1.00
             currency_type = 'руб'
@@ -98,7 +105,7 @@ class CashCalculator(Calculator):
         elif cash_remained < 0:
             # см. выше про переносы
             return 'Денег нет, держись:' \
-                   # можно использовать abs
+                   # лучше использовать abs https://pythonz.net/references/named/abs/
                    ' твой долг - {0:.2f} {1}'.format(-cash_remained,
                                                      currency_type)
 
