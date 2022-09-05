@@ -108,6 +108,8 @@ class CashCalculator(Calculator):
                    # лучше использовать abs https://pythonz.net/references/named/abs/
                    ' твой долг - {0:.2f} {1}'.format(-cash_remained,
                                                      currency_type)
-
+    
+    # Если в дочернем классе метод родительского класса никак не изменяется, переопределять его не нужно,
+    # соответственно использовать super() не требуется.
     def get_week_stats(self):
         super().get_week_stats()
