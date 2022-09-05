@@ -57,8 +57,9 @@ class Calculator:
 
 class CaloriesCalculator(Calculator):
     def get_calories_remained(self):  # Получает остаток калорий на сегодня
-        # Следует избегать однобуквенных обозначений переменных - лучше называть их в соответствии
+        # 1. Следует избегать однобуквенных обозначений переменных - лучше называть их в соответствии
         # с их назначением
+        # 2. Получение остатка можно вынести в родительский класс
         x = self.limit - self.get_today_stats()
         if x > 0:
             # Такие переносы давно уже не в моде :) Следует использовать скобки.
@@ -81,6 +82,7 @@ class CashCalculator(Calculator):
                                 # 3. Переносы лучше выдержать в едином стиле (например как на стр. 11)
                                 USD_RATE=USD_RATE, EURO_RATE=EURO_RATE):
         currency_type = currency
+        # Получение остатка можно вынести в родительский класс
         cash_remained = self.limit - self.get_today_stats()
         if currency == 'usd':
             cash_remained /= USD_RATE
